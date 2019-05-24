@@ -134,7 +134,6 @@ module Arel
       def visit_Orders_And_Let_Fetch_Happen o, collector
         make_Fetch_Possible_And_Deterministic o
         unless o.orders.empty?
-          collector << " "
           collector << " ORDER BY "
           len = o.orders.length - 1
           o.orders.each_with_index { |x, i|
@@ -174,7 +173,7 @@ module Arel
         return unless pk
         if o.orders.empty?
           # Prefer deterministic vs a simple `(SELECT NULL)` expr.
-          o.orders = [pk.asc]
+          o.orders = pk.map(&:asc)
         end
       end
 
@@ -202,9 +201,12 @@ module Arel
 
       def primary_Key_From_Table t
         return unless t
-        column_name = @connection.schema_cache.primary_keys(t.name) ||
-          @connection.schema_cache.columns_hash(t.name).first.try(:second).try(:name)
-        column_name ? t[column_name] : nil
+        cache = @connection.schema_cache
+        name = t.name
+        pk = cache.primary_keys(name) || cache.columns_hash(name).first.try(:second).try(:name)
+        return if pk.nil?
+        return [t[pk]] unless pk.is_a?(Array)
+        pk.map { |c| t[c] }
       end
 
       def remote_server_table_name o
