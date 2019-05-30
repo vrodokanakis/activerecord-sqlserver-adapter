@@ -15,7 +15,5 @@ script:
   - docker-compose run ci
 matrix:
   include:
-    - name: 2.5.3
-      env: TARGET_VERSION=2.5.3
     - name: 2.6.0
       env: TARGET_VERSION=2.6.0
