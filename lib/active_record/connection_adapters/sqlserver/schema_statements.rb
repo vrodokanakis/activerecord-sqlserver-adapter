@@ -87,7 +87,7 @@ module ActiveRecord
             name,
             default,
             sql_type_metadata,
-            null, table_name,
+            null,
             default_function,
             collation,
             comment,
